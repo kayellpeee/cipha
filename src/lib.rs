@@ -5,14 +5,14 @@
 /// One approach would be to hash a key to generate the subkey, which is hashed
 /// to generate the next subkey...so on so forth
 /// This will take a simpler approach so decryption subkey generation is easier
-fn feistel_encrypt(message: &str, key: i32, rounds: isize) -> &str {
+fn feistel_encrypt(message: &str, key: u8, rounds: u8) -> &str {
     let mut left: Vec<_> = message.bytes().collect();
-    let mut right: Vec<_> = left.split_off((left.len() / 2).floor());
-    let mut subkey: usize;
+    let mut right: Vec<_> = left.split_off(left.len() / 2);
+    let mut subkey: u8;
     let mut updated_left: Vec<_>;
     let mut updated_right: Vec<_>;
     for x in 0..rounds {
-        subkey = key.rotate_right(x);
+        subkey = key.rotate_right(x as u32);
         // L[i] = R[i - 1]
         updated_left = right;
         // R[i] = L[i - 1] ⊕ f(r[i - 1], k[i])
@@ -24,7 +24,7 @@ fn feistel_encrypt(message: &str, key: i32, rounds: isize) -> &str {
              rounds, left, right);
     message
 }
-fn encrypt_helper(right: Vec<u8>, subkey: i32) -> Vec<u8> {
+fn encrypt_helper(right: Vec<u8>, subkey: u8) -> Vec<u8> {
     println!("before running helper - {:?}", right);
     for byte in right {
         byte += subkey;
@@ -34,7 +34,7 @@ fn encrypt_helper(right: Vec<u8>, subkey: i32) -> Vec<u8> {
 }
 #[test]
 fn it_works() {
-    use super::feistel_encrypt;
+    use feistel_encrypt;
     let result = feistel_encrypt("test", 123, 3);
     println!("here's simple result {:?}", result);
 }
