@@ -12,6 +12,7 @@ pub use encrypt::feistel_encrypt;
 #[test]
 fn it_works() {
     let result = feistel_encrypt("test", 123, 3);
-    println!("here's simple result {:?}", result);
-    panic!("lemme see std_out rust");
+    assert_eq!("test", result);
+    println!("alt rounds {:?}", feistel_encrypt("keenan", 19, 4));
+    panic!("std_out");
 }

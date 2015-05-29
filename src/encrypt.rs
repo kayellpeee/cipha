@@ -25,7 +25,6 @@ pub fn feistel_encrypt(message: &str, key: u8, rounds: u8) -> String {
         }
         right = updated_right;
         left = updated_left;
-        println!("finished round {:?}\nleft {:?}\n right{:?}", x, left, right);
     }
     println!("Finished all {:?} rounds\nleft {:?}\nright {:?}",
              rounds, left, right);
@@ -40,12 +39,10 @@ pub fn feistel_encrypt(message: &str, key: u8, rounds: u8) -> String {
 
 fn encrypt_helper(right: Vec<u8>, subkey: u8) -> Vec<u8> {
     let mut added_right = Vec::new();
-    println!("before running helper - right {:?}", right);
     for byte in right.clone() {
         byte.wrapping_add(subkey);
         added_right.push(byte);
     }
-    println!("ran helper with subkey {:?} - right {:?}", subkey, added_right);
     added_right
 }
 
