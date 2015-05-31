@@ -6,9 +6,9 @@
 /// One approach would be to hash a key to generate the subkey, which is hashed
 /// to generate the next subkey...so on so forth
 /// This will take a simpler approach so decryption subkey generation is easier
-mod encrypt;
+mod cipher;
 
-pub use encrypt::feistel_encrypt;
+pub use cipher::feistel_encrypt;
 #[test]
 fn it_works() {
     let result = feistel_encrypt("test", 123, 3);
