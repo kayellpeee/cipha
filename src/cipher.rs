@@ -12,22 +12,23 @@ pub fn feistel_encrypt(message: &str, key: u8, rounds: u8) -> String {
     let mut subkey: u8;
     let mut updated_left: Vec<u8>;
     let mut updated_right: Vec<u8>;
-    println!("about to encrypt\nleft {:?}\nright {:?}", left, right);
+    println!("About to encrypt!\nleft {:?}\nright {:?}", left, right);
     for x in 0..rounds {
-        subkey = key.rotate_right(x as u32);
+        subkey = key.clone().rotate_right(x as u32);
         // L[i] = R[i - 1]
         updated_left = right.clone();
         // R[i] = L[i - 1] ⊕ f(r[i - 1], k[i])
         updated_right = Vec::new();
         right = encrypt_helper(right, subkey);
+        // FIX: will error on odd length message
         for i in 0..left.len() {
             updated_right.push(left[i] ^ right[i]);
         }
         right = updated_right;
         left = updated_left;
+        println!("On round {:?}/{:?} of encryption\n\tleft {:?}\n\tright {:?}
+                \tsubkey {:?}", x + 1, rounds, left, right, subkey);
     }
-    println!("Finished all {:?} rounds\nleft {:?}\nright {:?}",
-             rounds, left, right);
     let encrypted_left = String::from_utf8(left).unwrap();
     let encrypted_right = String::from_utf8(right).unwrap();
     let mut encrypted_message: String = String::new();
@@ -47,17 +48,18 @@ fn encrypt_helper(right: Vec<u8>, subkey: u8) -> Vec<u8> {
 }
 
 pub fn feistel_decrypt(ciphertext: &str, key: u8, rounds: u8) -> String {
-    let mut left: Vec<u8> = ciphertext.bytes().collect();
-    let ciphertext_length: usize = left.len();
-    let mut right: Vec<u8> = left.split_off(ciphertext_length / 2);
+    let mut right: Vec<u8> = ciphertext.bytes().collect();
+    let ciphertext_length: usize = right.len();
+    let mut left: Vec<u8> = right.split_off(ciphertext_length / 2);
     let mut subkey: u8;
     let mut updated_left: Vec<u8>;
     let mut updated_right: Vec<u8>;
-    println!("About to decrypt!\nleft {:?}\nright {:?}", left, right);
-    for x in 0..rounds {
+    // because encryption went from [0, rounds) decryption should
+    // generate subkeys for (rounds, 0]
+    for x in 1..rounds + 1 {
         // only difference in encryption & decryption is order of subkeys
         // and reversible round function
-        subkey = key.rotate_right((rounds - x) as u32);
+        subkey = key.clone().rotate_right((rounds - x) as u32);
         // l[i] = R[i - 1]
         updated_left = right.clone();
         // R[i] = L[i - 1] ⊕ f(r[i - 1], k[i])
@@ -68,11 +70,11 @@ pub fn feistel_decrypt(ciphertext: &str, key: u8, rounds: u8) -> String {
         }
         right = updated_right;
         left = updated_left;
+        println!("On round {:?}/{:?} of decryption\n\tleft {:?}\n\tright {:?}
+                 \tsubkey {:?}", x, rounds, left, right, subkey);
     }
-    println!("finished all {:?} rounds of decryption!\nleft {:?}\nright {:?}",
-             rounds, left, right);
-    let decrypted_left = String::from_utf8(left).unwrap();
-    let decrypted_right = String::from_utf8(right).unwrap();
+    let decrypted_left = String::from_utf8(right).unwrap();
+    let decrypted_right = String::from_utf8(left).unwrap();
     let mut plaintext: String = String::new();
     plaintext.push_str(&decrypted_left);
     plaintext.push_str(&decrypted_right);
@@ -81,11 +83,11 @@ pub fn feistel_decrypt(ciphertext: &str, key: u8, rounds: u8) -> String {
 }
 
 fn decrypt_helper(right: Vec<u8>, subkey: u8) -> Vec<u8> {
-    let mut added_right = Vec::new();
+    let mut subtracted_right = Vec::new();
     for byte in right.clone() {
-        byte.wrapping_add(subkey);
-        added_right.push(byte);
+        byte.wrapping_sub(subkey);
+        subtracted_right.push(byte);
     }
-    added_right
+    subtracted_right
 }
 
