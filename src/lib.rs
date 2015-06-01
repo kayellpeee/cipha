@@ -9,10 +9,10 @@
 mod cipher;
 
 pub use cipher::feistel_encrypt;
+pub use cipher::feistel_decrypt;
 #[test]
 fn it_works() {
-    let result = feistel_encrypt("test", 123, 3);
-    assert_eq!("test", result);
-    println!("alt rounds {:?}", feistel_encrypt("keenan", 19, 4));
-    panic!("std_out");
+    let ciphertext = feistel_encrypt("keenan", 19, 4);
+    let plaintext = feistel_decrypt(&ciphertext, 19, 4);
+    assert_eq!("keenan", plaintext);
 }
