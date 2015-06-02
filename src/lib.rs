@@ -16,3 +16,9 @@ fn it_works() {
     let plaintext = feistel_decrypt(&ciphertext, 19, 4);
     assert_eq!("keenan", plaintext);
 }
+#[test]
+fn odd_length_message() {
+    let ciphertext = feistel_encrypt("ricky", 110, 2);
+    let plaintext = feistel_decrypt(&ciphertext, 110, 2);
+    assert_eq!("ricky", plaintext);
+}
