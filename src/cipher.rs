@@ -21,8 +21,20 @@ pub fn feistel_encrypt(message: &str, key: u8, rounds: u8) -> String {
         updated_right = Vec::new();
         right = encrypt_helper(right, subkey);
         // FIX: will error on odd length message
-        for i in 0..left.len() {
-            updated_right.push(left[i] ^ right[i]);
+        if left.len() < right.len() {
+            for i in 0..left.len() {
+                updated_right.push(left[i] ^ right[i]);
+            }
+        } else if left.len() > right.len() {
+            for i in 0..right.len() {
+                updated_right.push(left[i] ^ right[i]);
+            }
+            let last_index = left.len();
+            updated_right.push(left[last_index - 1]);
+        } else {
+            for i in 0..left.len() {
+                updated_right.push(left[i] ^ right[i]);
+            }
         }
         right = updated_right;
         left = updated_left;
@@ -65,8 +77,20 @@ pub fn feistel_decrypt(ciphertext: &str, key: u8, rounds: u8) -> String {
         // R[i] = L[i - 1] ⊕ f(r[i - 1], k[i])
         updated_right = Vec::new();
         right = decrypt_helper(right, subkey);
-        for i in 0..left.len() {
-            updated_right.push(left[i] ^ right[i]);
+        if left.len() < right.len() {
+            for i in 0..left.len() {
+                updated_right.push(left[i] ^ right[i]);
+            }
+        } else if left.len() > right.len() {
+            for i in 0..right.len() {
+                updated_right.push(left[i] ^ right[i]);
+            }
+            let last_index = left.len();
+            updated_right.push(left[last_index - 1]);
+        } else {
+            for i in 0..left.len() {
+                updated_right.push(left[i] ^ right[i]);
+            }
         }
         right = updated_right;
         left = updated_left;
