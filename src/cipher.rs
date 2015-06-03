@@ -5,7 +5,7 @@
 /// One approach would be to hash a key to generate the subkey, which is hashed
 /// to generate the next subkey...so on so forth
 /// This will take a simpler approach so decryption subkey generation is easier
-pub fn feistel_encrypt(plaintext: &str, key: u8, rounds: u8) -> String {
+pub fn feistel_encrypt(plaintext: &str, key: u8, rounds: u8) -> Vec<u8> {
     let mut left: Vec<u8> = plaintext.bytes().collect();
     let plaintext_length: usize = left.len();
     let mut right: Vec<u8> = left.split_off(plaintext_length / 2);
@@ -40,11 +40,9 @@ pub fn feistel_encrypt(plaintext: &str, key: u8, rounds: u8) -> String {
         println!("On round {:?}/{:?} of encryption\n\tleft {:?}\n\tright {:?}
                 \tsubkey {:?}", x + 1, rounds, left, right, subkey);
     }
-    let encrypted_left = String::from_utf8(left).unwrap();
-    let encrypted_right = String::from_utf8(right).unwrap();
-    let mut ciphertext: String = String::new();
-    ciphertext.push_str(&encrypted_left);
-    ciphertext.push_str(&encrypted_right);
+    let mut _ciphertext: Vec<u8> = left.clone();
+    _ciphertext.append(&mut right);
+    let ciphertext = _ciphertext;
     println!("fully encrypted - {:?}", &ciphertext);
     ciphertext
 }
@@ -58,10 +56,9 @@ fn encrypt_helper(right: Vec<u8>, subkey: u8) -> Vec<u8> {
     added_right
 }
 
-pub fn feistel_decrypt(ciphertext: &str, key: u8, rounds: u8) -> String {
-    let mut right: Vec<u8> = ciphertext.bytes().collect();
-    let ciphertext_length: usize = right.len();
-    let mut left: Vec<u8> = right.split_off(ciphertext_length / 2);
+pub fn feistel_decrypt(ciphertext: Vec<u8>, key: u8, rounds: u8) -> String {
+    let mut right: Vec<u8> = ciphertext.clone();
+    let mut left: Vec<u8> = right.split_off(ciphertext.len() / 2);
     let mut subkey: u8;
     let mut updated_left: Vec<u8>;
     let mut updated_right: Vec<u8>;

@@ -13,12 +13,12 @@ pub use cipher::feistel_decrypt;
 #[test]
 fn it_works() {
     let ciphertext = feistel_encrypt("keenan", 19, 4);
-    let plaintext = feistel_decrypt(&ciphertext, 19, 4);
+    let plaintext = feistel_decrypt(ciphertext, 19, 4);
     assert_eq!("keenan", plaintext);
 }
 #[test]
 fn odd_length_message() {
     let ciphertext = feistel_encrypt("ricky", 110, 2);
-    let plaintext = feistel_decrypt(&ciphertext, 110, 2);
+    let plaintext = feistel_decrypt(ciphertext, 110, 2);
     assert_eq!("ricky", plaintext);
 }
