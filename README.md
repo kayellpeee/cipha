@@ -23,18 +23,15 @@ incoming data onto already encrypted data?? decryption?
 
 \* not like Fiestel cipher at least
 
-Currently won't actually encrypt anything because
- - overflowing utf8 (maybe?)
- - bit shifting overflow
- - direct add is xor —- will probably have to change this or overflow bit shift
-
-bit shifting with overflow is suspect because it easily arrives at the starting
-values (overflow left or right 3 places for 'size 3' bit remains unchanged)
-...and then xor'ing with the same values doesn't do anything...
+Currently encrypts to Vec<u32>
+- xor is standard - ["⊕ denotes exclusive or (XOR)"](http://en.wikipedia.org/wiki/Hash-based_message_authentication_code#Definition_.28from_RFC_2104.29)
+- xor allows same round function to be used in both decryption & encryption
+- should change to be more hash-y (not just add)
+- subkey & keys should be more secret-y (true hash not u32, u8)
 
 ###planned features
 
-Fiestel cipher
+Fiestel cipher (currently implemented, just pretty poorly)
 probabilistic encryption
 trapdoor fn (for more secure probabilistic encryption) (primes)
 symetric key encryption
