@@ -22,7 +22,7 @@ pub fn feistel_encrypt(plaintext: &str, key: u32, rounds: u8) -> Vec<u32> {
         // R[i] = L[i - 1] ⊕ f(r[i - 1], k[i])
         updated_right = Vec::new();
         right = round_fn(right, subkey);
-        if left.len() < right.len() {
+        if left.len() <= right.len() {
             for i in 0..left.len() {
                 updated_right.push(left[i] ^ right[i]);
             }
@@ -32,10 +32,6 @@ pub fn feistel_encrypt(plaintext: &str, key: u32, rounds: u8) -> Vec<u32> {
             }
             let last_index = left.len();
             updated_right.push(left[last_index - 1]);
-        } else {
-            for i in 0..left.len() {
-                updated_right.push(left[i] ^ right[i]);
-            }
         }
         right = updated_right;
         left = updated_left;
@@ -69,14 +65,13 @@ pub fn feistel_decrypt(ciphertext: Vec<u32>, key: u32, rounds: u8) -> String {
     // generate subkeys for (rounds, 0]
     for x in 1..rounds + 1 {
         // only difference in encryption & decryption is order of subkeys
-        // and reversible round function
         subkey = (key.rotate_right((rounds - x) as u32) as f32).ln() as u32;
         // l[i] = R[i - 1]
         updated_left = right.clone();
         // R[i] = L[i - 1] ⊕ f(r[i - 1], k[i])
         updated_right = Vec::new();
         right = round_fn(right, subkey);
-        if left.len() < right.len() {
+        if left.len() <= right.len() {
             for i in 0..left.len() {
                 updated_right.push(left[i] ^ right[i]);
             }
@@ -86,10 +81,6 @@ pub fn feistel_decrypt(ciphertext: Vec<u32>, key: u32, rounds: u8) -> String {
             }
             let last_index = left.len();
             updated_right.push(left[last_index - 1]);
-        } else {
-            for i in 0..left.len() {
-                updated_right.push(left[i] ^ right[i]);
-            }
         }
         right = updated_right;
         left = updated_left;
