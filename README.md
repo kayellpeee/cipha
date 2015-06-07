@@ -26,8 +26,10 @@ incoming data onto already encrypted data?? decryption?
 Currently encrypts to Vec<u32>
 - xor is standard - ["⊕ denotes exclusive or (XOR)"](http://en.wikipedia.org/wiki/Hash-based_message_authentication_code#Definition_.28from_RFC_2104.29)
 - xor allows same round function to be used in both decryption & encryption
-- should change to be more hash-y (not just add)
+- encryption logic now lies in round function & key generation
+- round fn should change to be more hash-y (not just add)
 - subkey & keys should be more secret-y (true hash not u32, u8)
+  - larger and hex encoded
 
 ###planned features
 
