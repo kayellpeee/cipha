@@ -55,10 +55,10 @@ fn round_fn(right: Vec<u32>, subkey: u32) -> Vec<u32> {
     let mut updated_right = Vec::new();
     let mut new_val: u32;
     for byte in right {
-        new_val = byte * subkey.count_ones();
-        new_val %= subkey.pow(byte.count_ones());
-        new_val += (byte.pow(2) as f32).cbrt() as u32;
-        new_val -= (subkey as f32).log(new_val.count_ones() as f32) as u32;
+        new_val = byte.wrapping_mul(subkey.count_ones());
+        new_val = subkey % new_val;
+        new_val += (byte as f32).cbrt() as u32;
+        new_val -= byte.count_ones();
         updated_right.push(new_val);
     }
     updated_right
