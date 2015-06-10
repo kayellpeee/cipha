@@ -17,7 +17,7 @@ pub fn feistel_encrypt(plaintext: &str, key: u32, rounds: u8) -> Vec<u32> {
     let mut updated_right: Vec<u32>;
     for x in 0..rounds {
         // Subkey should be as unique as possible
-        salty = key.count_ones() - x as u32;
+        salty = key.count_ones() + x as u32;
         subkey = key.wrapping_mul(salty);
         // L[i] = R[i - 1]
         updated_left = right.clone();
@@ -55,10 +55,12 @@ fn round_fn(right: Vec<u32>, subkey: u32) -> Vec<u32> {
     let mut updated_right = Vec::new();
     let mut new_val: u32;
     for byte in right {
-        new_val = byte.wrapping_mul(subkey.count_ones());
+        new_val = byte.wrapping_mul(subkey.count_ones() + 1);
         new_val = subkey % new_val;
         new_val += (byte as f32).cbrt() as u32;
-        new_val -= byte.count_ones();
+        if new_val > byte.count_ones() {
+            new_val -= byte.count_ones();
+        }
         updated_right.push(new_val);
     }
     updated_right
@@ -75,7 +77,7 @@ pub fn feistel_decrypt(ciphertext: Vec<u32>, key: u32, rounds: u8) -> String {
     // generate subkeys for (rounds, 0]
     for x in 1..rounds + 1 {
         // only difference in encryption & decryption is order of subkeys
-        salty = key.count_ones() - (rounds - x) as u32;
+        salty = key.count_ones() + (rounds - x) as u32;
         subkey = key.wrapping_mul(salty);
         // l[i] = R[i - 1]
         updated_left = right.clone();
