@@ -41,6 +41,13 @@ pub fn feistel_encrypt(plaintext: &str, key: u32, rounds: u8) -> Vec<u32> {
     ciphertext
 }
 
+/// Here lies the real brains of encryption algorithm...
+/// Round function must take full advantage of the uniqueness of the subkey
+/// in order to have a really strong encryption. And because round fn doesn't
+/// *need* to be reversible, it could theoretically hash values with a subkey.
+/// So we want round fn to have a large, well-distributed range. To do that
+/// we'll increase (+ * ^) and decrease (- / %) several times to get a unique
+/// byte.
 fn round_fn(right: Vec<u32>, subkey: u32) -> Vec<u32> {
     let mut updated_right = Vec::new();
     for byte in right {
