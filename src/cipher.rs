@@ -12,10 +12,13 @@ pub fn feistel_encrypt(plaintext: &str, key: u32, rounds: u8) -> Vec<u32> {
     let mut left: Vec<u32> = _left.into_iter().map(|x| x as u32).collect();
     let mut right: Vec<u32> = _right.into_iter().map(|x| x as u32).collect();
     let mut subkey: u32;
+    let mut salty: u32;
     let mut updated_left: Vec<u32>;
     let mut updated_right: Vec<u32>;
     for x in 0..rounds {
-        subkey = (key.rotate_right(x as u32) as f32).ln() as u32;
+        // Subkey should be as unique as possible
+        salty = key.count_ones() - x as u32;
+        subkey = key.wrapping_mul(salty);
         // L[i] = R[i - 1]
         updated_left = right.clone();
         // R[i] = L[i - 1] ⊕ f(r[i - 1], k[i])
@@ -65,13 +68,15 @@ pub fn feistel_decrypt(ciphertext: Vec<u32>, key: u32, rounds: u8) -> String {
     let mut right: Vec<u32> = ciphertext.clone();
     let mut left: Vec<u32> = right.split_off(ciphertext.len() / 2);
     let mut subkey: u32;
+    let mut salty: u32;
     let mut updated_left: Vec<u32>;
     let mut updated_right: Vec<u32>;
     // because encryption went from [0, rounds) decryption should
     // generate subkeys for (rounds, 0]
     for x in 1..rounds + 1 {
         // only difference in encryption & decryption is order of subkeys
-        subkey = (key.rotate_right((rounds - x) as u32) as f32).ln() as u32;
+        salty = key.count_ones() - (rounds - x) as u32;
+        subkey = key.wrapping_mul(salty);
         // l[i] = R[i - 1]
         updated_left = right.clone();
         // R[i] = L[i - 1] ⊕ f(r[i - 1], k[i])
