@@ -1,11 +1,4 @@
 #![feature(collections)]
-/// encryption is similar to hashing without destructive operation
-/// it also requires a key - or something to encrypt against
-/// For a Feistel cipher we'll have to generate subkeys from the master key
-/// One subkey is used per round and there can be multiple rounds of encryption
-/// One approach would be to hash a key to generate the subkey, which is hashed
-/// to generate the next subkey...so on so forth
-/// This will take a simpler approach so decryption subkey generation is easier
 mod cipher;
 
 pub use cipher::feistel_encrypt;
@@ -16,6 +9,18 @@ fn it_works() {
     let plaintext = feistel_decrypt(ciphertext, 19, 4);
     assert_eq!("keenan", plaintext);
 }
+/// One "metric" of an encryption protocol's strength is how little relation
+/// there is between the inputs and outputs. AKA there must be either
+/// a random difference between input and output, or a consistent output
+/// regardless of input
+/// i.e. either
+///  "a" -> 7, "b" -> 42, "c" -> 0.1451, "de" -> 6623
+///  or
+///  "a" -> 1.013, "b" -> 1.003, "c" -> 1.201, "de" -> 1.031
+/// Both are really hard to draw patterns from & thus reverse engineer the
+/// encryption algorithm. To test this we'll find the difference b/w input and
+/// output and see if similar inputs map to similar outputs (not random) as long
+/// as all inupts don't map to similar outputs (consistent).
 #[test]
 fn odd_length_message() {
     let ciphertext = feistel_encrypt("ricky", 110, 2);
