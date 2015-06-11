@@ -12,6 +12,20 @@ fn it_works() {
     let odd_plaintext = feistel_decrypt(odd_ciphertext, 110, 2);
     assert_eq!("ricky", odd_plaintext);
 }
+#[test]
+fn it_works_larger() {
+    // shouldn't error with larger key for longer rounds
+    let ciphertext = feistel_encrypt("Larger string", 10091993, 32);
+    let plaintext = feistel_decrypt(ciphertext, 10091993, 32);
+    assert_eq!("Larger string", plaintext);
+}
+#[test]
+fn max_key_rounds() {
+    // should work for max u32 u8
+    let ciphertext = feistel_encrypt("The quick brown fox", 4294967295, 255);
+    let plaintext = feistel_decrypt(ciphertext, 4294967295, 255);
+    assert_eq!("The quick brown fox", plaintext);
+}
 /// One "metric" of an encryption protocol's strength is how little relation
 /// there is between the inputs and outputs. AKA there must be either
 /// a random difference between input and output, or a consistent output
