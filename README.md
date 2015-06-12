@@ -33,6 +33,8 @@ Currently encrypts to Vec<u32>
 
 ###tests
 
+*no longer the case - fixed by [791914c5](https://github.com/kayellpeee/cipha/commit/791914c5e5b4c400587e384603e15d5b5e1e0aa7)*
+
 for some reason it's failing on odd rounds with an odd length message
 ... must have something to do with the order or inputs/xor-ing (left/right)
 hm, well if they're odd in length then there's one byte that floats on the end
@@ -59,6 +61,9 @@ The fn already does that though.
     /   \                                               /   \
  [L:b]  [R:a]                                       [L:a]   [R:b]
 ```
+\* `A/a B/b` denotes original left and right respectively, obviously they will
+mutate as they get passed around. Not intended to show same values.
+
 So if a message is encrypted for an odd amount of rounds, it either needs to
 *not* flip the order before decrypting, or it needs to flip before and after
 decrypting i.e.:
@@ -109,11 +114,45 @@ switched after the last round."](http://simple.wikipedia.org/wiki/Feistel_cipher
 
 Dunno, I'll try both, see what works and try to rationalize it
 
+*update*
+
+Only fix was to change the index in which decryption function splits the
+ciphertext. Simply not flipping the inputs didn't work (neither fliping before &
+after decrypting, nor that in addition to after encrypting passed the tests).
+
+Consider the order of subkeys:
+```
+                                                        A'''B'''
+                                                          x
+    A   B    <------- 1                 3  ------->     B'''A'''
+    |   |                   subkeys:                   |     |
+ [L:a]  [R:b]                                       [L:b]   [R:a]
+    \   /                                               \   /
+      x                                                   x
+    /   \                                               /   \
+   B'    A'  <------- 2                 2  ------->    A''   B''
+   |     |                                             |     |
+ [L:b]  [R:a]                                       [L:a]   [R:b]
+    \   /                                               \   /
+      x                                                   x
+    /   \                                               /   \
+   A''   B'' <------- 3                 1  ------->    B'    A'
+   |     |                                             |     |
+ [L:a] [R:b]                                        [L:b]   [R:a]
+   |     |                                                x
+   A'''  B'''                                           A   B
+```
+\* L[n] = R[n-2] i.e. A'' == B'
+The only difference between encryption & decryption is the order of the subkeys.
+This (poor) feistel_decrypt implementatino swaps before & after it runs because
+it must ensure the same right sides are encrypted with the same subkeys
+
+
 ###planned features
 
- - Fiestel cipher (currently implemented, just pretty poorly)
- - probabilistic encryption
- - trapdoor fn (for more secure probabilistic encryption) (primes)
- - symetric key encryption
- - asymetric key encryption (public key)
- - stream cipher (RIP block cipher - hopping on that codata)
+- Fiestel cipher (currently implemented, just pretty poorly)
+- probabilistic encryption
+- trapdoor fn (for more secure probabilistic encryption) (primes)
+- symetric key encryption
+- asymetric key encryption (public key)
+- stream cipher (RIP block cipher - hopping on that codata)
