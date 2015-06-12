@@ -43,9 +43,9 @@ fn max_key_rounds() {
         "The quick blue fox", 4294967295, 255);
     let even_plaintext = feistel_decrypt(
         even_ciphertext, 4294967295, 255);
-    assert_eq!("The quick brown fox", even_plaintext);
+    assert_eq!("The quick blue fox", even_plaintext);
 
-    let odd_ciphertext = feistel_encrypt("The quick blue fox", 4294967295, 255);
+    let odd_ciphertext = feistel_encrypt("The quick brown fox", 4294967295, 255);
     let odd_plaintext = feistel_decrypt(odd_ciphertext, 4294967295, 255);
     assert_eq!("The quick brown fox", odd_plaintext);
 }

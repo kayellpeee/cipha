@@ -68,16 +68,23 @@ fn round_fn(right: Vec<u32>, subkey: u32) -> Vec<u32> {
 
 pub fn feistel_decrypt(ciphertext: Vec<u32>, key: u32, rounds: u8) -> String {
     let mut right: Vec<u32> = ciphertext.clone();
-    let mut left: Vec<u32> = right.split_off(ciphertext.len() / 2);
+    let split_index;
+    if (ciphertext.len() % 2 == 1) && (rounds % 2 == 1) {
+        // cipher text is odd, change index of split
+        split_index = (ciphertext.len() / 2) + 1;
+    } else {
+        split_index = ciphertext.len() / 2;
+    }
+    let mut left: Vec<u32> = right.split_off(split_index);
     let mut subkey: u32;
     let mut salty: u32;
     let mut updated_left: Vec<u32>;
     let mut updated_right: Vec<u32>;
     // because encryption went from [0, rounds) decryption should
     // generate subkeys for (rounds, 0]
-    for x in 1..rounds + 1 {
+    for x in 0..rounds {
         // only difference in encryption & decryption is order of subkeys
-        salty = key.count_ones() + (rounds - x) as u32;
+        salty = key.count_ones() + (rounds - 1 - x) as u32;
         subkey = key.wrapping_mul(salty);
         // l[i] = R[i - 1]
         updated_left = right.clone();
