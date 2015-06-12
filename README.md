@@ -111,9 +111,9 @@ Dunno, I'll try both, see what works and try to rationalize it
 
 ###planned features
 
-Fiestel cipher (currently implemented, just pretty poorly)
-probabilistic encryption
-trapdoor fn (for more secure probabilistic encryption) (primes)
-symetric key encryption
-asymetric key encryption (public key)
-stream cipher (RIP block cipher - hopping on that codata)
+ - Fiestel cipher (currently implemented, just pretty poorly)
+ - probabilistic encryption
+ - trapdoor fn (for more secure probabilistic encryption) (primes)
+ - symetric key encryption
+ - asymetric key encryption (public key)
+ - stream cipher (RIP block cipher - hopping on that codata)
