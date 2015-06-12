@@ -8,9 +8,14 @@ fn it_works() {
     let ciphertext = feistel_encrypt("keenan", 19, 4);
     let plaintext = feistel_decrypt(ciphertext, 19, 4);
     assert_eq!("keenan", plaintext);
+
     let odd_ciphertext = feistel_encrypt("ricky", 110, 2);
     let odd_plaintext = feistel_decrypt(odd_ciphertext, 110, 2);
     assert_eq!("ricky", odd_plaintext);
+
+    let odd_rounds_ciphertext = feistel_encrypt("julian", 92, 5);
+    let odd_rounds_plaintext = feistel_decrypt(odd_rounds_ciphertext, 92, 5);
+    assert_eq!("julian", odd_rounds_plaintext);
 }
 #[test]
 fn it_works_larger() {
@@ -18,13 +23,31 @@ fn it_works_larger() {
     let ciphertext = feistel_encrypt("Larger string", 10091993, 32);
     let plaintext = feistel_decrypt(ciphertext, 10091993, 32);
     assert_eq!("Larger string", plaintext);
+
+    let odd_rounds_even_ciphertext = feistel_encrypt(
+        "Some odd rounds even str", 564738291, 25);
+    let odd_rounds_even_plaintext = feistel_decrypt(
+        odd_rounds_even_ciphertext, 564738291, 25);
+    assert_eq!("Some odd rounds even str", odd_rounds_even_plaintext);
+
+    let odd_rounds_ciphertext = feistel_encrypt(
+        "Some odd rounds", 564738291, 25);
+    let odd_rounds_plaintext = feistel_decrypt(
+        odd_rounds_ciphertext, 564738291, 25);
+    assert_eq!("Some odd rounds", odd_rounds_plaintext);
 }
 #[test]
 fn max_key_rounds() {
     // should work for max u32 u8
-    let ciphertext = feistel_encrypt("The quick brown fox", 4294967295, 255);
-    let plaintext = feistel_decrypt(ciphertext, 4294967295, 255);
-    assert_eq!("The quick brown fox", plaintext);
+    let even_ciphertext = feistel_encrypt(
+        "The quick blue fox", 4294967295, 255);
+    let even_plaintext = feistel_decrypt(
+        even_ciphertext, 4294967295, 255);
+    assert_eq!("The quick brown fox", even_plaintext);
+
+    let odd_ciphertext = feistel_encrypt("The quick blue fox", 4294967295, 255);
+    let odd_plaintext = feistel_decrypt(odd_ciphertext, 4294967295, 255);
+    assert_eq!("The quick brown fox", odd_plaintext);
 }
 /// One "metric" of an encryption protocol's strength is how little relation
 /// there is between the inputs and outputs. AKA there must be either
