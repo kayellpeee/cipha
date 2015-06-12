@@ -31,6 +31,84 @@ Currently encrypts to Vec<u32>
 - subkey & keys should be more secret-y (true hash not u32, u8)
   - larger and hex encoded
 
+###tests
+
+for some reason it's failing on odd rounds with an odd length message
+... must have something to do with the order or inputs/xor-ing (left/right)
+hm, well if they're odd in length then there's one byte that floats on the end
+and if they're encrypted for an odd amount of rounds then what was originally
+left becomes right & vice versa...in order to have original left end up left it
+must enter decryption as right (reverse order) and then exit flipped again
+The fn already does that though.
+```
+ [L:a]  [R:b]                                       [L:b]   [R:a]
+    \   /                                               \   /
+      x                                                   x
+    /   \                                               /   \
+ [L:b]  [R:a]     <- an odd round encryption        [L:a]   [R:b]
+    \   /            an odd round decryption ->         \   /
+      x                                                   x
+    /   \                                               /   \
+ [L:a] [R:b]                                        [L:b]   [R:a]
+
+  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *  *
+
+ [L:a]  [R:b]                                       [L:b]   [R:a]
+    \   /        <- an even round encryption            \   /
+      x             an even round decryption ->           x
+    /   \                                               /   \
+ [L:b]  [R:a]                                       [L:a]   [R:b]
+```
+So if a message is encrypted for an odd amount of rounds, it either needs to
+*not* flip the order before decrypting, or it needs to flip before and after
+decrypting i.e.:
+```
+  A       B  reverse input from encryption output ->    A   B
+  |       |                                               x
+ [L:a]  [R:b]                                       [L:b]   [R:a]
+    \   /                                               \   /
+      x                                                   x
+    /   \                                               /   \
+ [L:b]  [R:a]     <- an odd round encryption        [L:a]   [R:b]
+    \   /            an odd round decryption ->         \   /
+      x                                                   x
+    /   \                                               /   \
+ [L:a] [R:b]                                        [L:b]   [R:a]
+  |      |                                                x
+  A      B   reverse before reconstructing message ->   A   B
+
+                            *or*
+
+  A       B  same input from encryption output ->    A        B
+  |       |                                          |        |
+ [L:a]  [R:b]                                       [L:a]   [R:b]
+    \   /                                               \   /
+      x                                                   x 
+    /   \                                               /   \
+ [L:b]  [R:a]     <- an odd round encryption        [L:b]   [R:a]
+    \   /            an odd round decryption ->         \   /
+      x                                                   x 
+    /   \                                               /   \
+ [L:a] [R:b]                                        [L:a]   [R:b]
+  |      |                                           |        |
+  A      B   same before reconstructing message ->   A        B
+```
+Fn currently flips before & after but not sure why that works for even length
+messages encrypted an odd amount of rounds but not for odd length messages an
+odd amount of rounds...
+
+AHHHHHHhhhhh so when message is odd in length, right contains 1 more byte than
+left. And if fn reverses inputs to decrypt then the wrong side contains the
+additional byte. So either change the index at which feistel_decrypt splits the
+message at, or don't reverse the inputs before feeding it
+
+... why did I do that in the first place?...
+oh, I think it was because of [this picture](http://commons.wikimedia.org/wiki/File:Feistel_cipher_diagram_en.svg#/media/File:Feistel_cipher_diagram_en.svg)
+which I definitely misinterpreted ["Commonly the two pieces R_n and L_n are not
+switched after the last round."](http://simple.wikipedia.org/wiki/Feistel_cipher)
+
+Dunno, I'll try both, see what works and try to rationalize it
+
 ###planned features
 
 Fiestel cipher (currently implemented, just pretty poorly)
