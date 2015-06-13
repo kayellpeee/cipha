@@ -32,14 +32,13 @@ pub fn feistel_encrypt(plaintext: &str, key: u32, rounds: u8) -> Vec<u32> {
             for i in 0..right.len() {
                 updated_right.push(left[i] ^ right[i]);
             }
-            let last_index = left.len();
-            updated_right.push(left[last_index - 1]);
+            updated_right.push(left[left.len() - 1]);
         }
         right = updated_right;
         left = updated_left;
     }
-    let mut _ciphertext: Vec<u32> = left.clone();
-    _ciphertext.append(&mut right);
+    let mut _ciphertext: Vec<u32> = right.clone();
+    _ciphertext.append(&mut left);
     let ciphertext = _ciphertext;
     ciphertext
 }
@@ -67,15 +66,16 @@ fn round_fn(right: Vec<u32>, subkey: u32) -> Vec<u32> {
 }
 
 pub fn feistel_decrypt(ciphertext: Vec<u32>, key: u32, rounds: u8) -> String {
-    let mut right: Vec<u32> = ciphertext.clone();
+    let mut left: Vec<u32> = ciphertext.clone();
     let split_index;
-    if (ciphertext.len() % 2 == 1) && (rounds % 2 == 1) {
-        // cipher text is odd, change index of split
+    // Encryption gives us ciphertext of R + L for even amount of rounds
+    // ensure we split at the proper index if ciphertext has odd length
+    if (rounds % 2 == 0) && (ciphertext.len() % 2 == 1) {
         split_index = (ciphertext.len() / 2) + 1;
     } else {
         split_index = ciphertext.len() / 2;
     }
-    let mut left: Vec<u32> = right.split_off(split_index);
+    let mut right: Vec<u32> = left.split_off(split_index);
     let mut subkey: u32;
     let mut salty: u32;
     let mut updated_left: Vec<u32>;
@@ -99,8 +99,7 @@ pub fn feistel_decrypt(ciphertext: Vec<u32>, key: u32, rounds: u8) -> String {
             for i in 0..right.len() {
                 updated_right.push(left[i] ^ right[i]);
             }
-            let last_index = left.len();
-            updated_right.push(left[last_index - 1]);
+            updated_right.push(left[left.len() - 1]);
         }
         right = updated_right;
         left = updated_left;
