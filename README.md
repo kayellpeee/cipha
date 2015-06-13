@@ -32,6 +32,10 @@ Currently encrypts to Vec<u32>
   - larger and hex encoded
 
 ###tests
+It's kinda difficult, or at least a bit odd, to test the strength of an
+encryption algorithm. See doc comments above `delte` test in [src/lib.rs](https://github.com/kayellpeee/cipha/blob/master/src/lib.rs)
+
+###issues - solved & explanation
 
 *no longer the case - fixed by [791914c5](https://github.com/kayellpeee/cipha/commit/791914c5e5b4c400587e384603e15d5b5e1e0aa7)*
 
