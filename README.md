@@ -92,7 +92,7 @@ decrypting i.e.:
     /   \                                               /   \
  [L:b]  [R:a]     <- an odd round encryption        [L:b]   [R:a]
     \   /            an odd round decryption ->         \   /
-      x                                                   x 
+      x                                                   x
     /   \                                               /   \
  [L:a] [R:b]                                        [L:a]   [R:b]
   |      |                                           |        |
@@ -107,10 +107,6 @@ left. And if fn reverses inputs to decrypt then the wrong side contains the
 additional byte. So either change the index at which feistel_decrypt splits the
 message at, or don't reverse the inputs before feeding it
 
-... why did I do that in the first place?...
-oh, I think it was because of [this picture](http://commons.wikimedia.org/wiki/File:Feistel_cipher_diagram_en.svg#/media/File:Feistel_cipher_diagram_en.svg)
-which I definitely misinterpreted ["Commonly the two pieces R_n and L_n are not
-switched after the last round."](http://simple.wikipedia.org/wiki/Feistel_cipher)
 
 Dunno, I'll try both, see what works and try to rationalize it
 
@@ -122,31 +118,61 @@ after decrypting, nor that in addition to after encrypting passed the tests).
 
 Consider the order of subkeys:
 ```
-                                                        A'''B'''
-                                                          x
-    A   B    <------- 1                 3  ------->     B'''A'''
-    |   |                   subkeys:                   |     |
- [L:a]  [R:b]                                       [L:b]   [R:a]
-    \   /                                               \   /
-      x                                                   x
-    /   \                                               /   \
-   B'    A'  <------- 2                 2  ------->    A''   B''
-   |     |                                             |     |
- [L:b]  [R:a]                                       [L:a]   [R:b]
-    \   /                                               \   /
-      x                                                   x
-    /   \                                               /   \
-   A''   B'' <------- 3                 1  ------->    B'    A'
-   |     |                                             |     |
- [L:a] [R:b]                                        [L:b]   [R:a]
-   |     |                                                x
-   A'''  B'''                                           A   B
+   for an odd amoount of rounds:
+                             Decryption    subkeys
+   Encryption  subkeys       L''' R'''
+                               x
+   L    R                    R''' L'''(R'')
+   \_ / |                    \_ / |
+    / \ |                     / \ |
+   |    ^   <------- 1       |    ^  <---------- 3
+   |    |                    |    |
+   L'   R'                   R''  L''(R')
+   \_ / |                    \_ / |
+    / \ |                     / \ |
+   |    ^   <------- 2       |    ^  <---------- 2
+   |    |                    |    |
+   L''  R''                  R'  L'(R)
+   \_ / |                    \_ / |
+    / \ |                     / \ |
+   |    ^   <------- 3       |    ^  <---------- 1
+   |    |                    |    |
+   L''' R'''                 R    L
+
+   for an even amount of rounds:
+                             Decryption  subkeys
+   Encryption  subkeys       L''  R''
+                               x
+   L    R                    R''  L''(R'')
+   \_ / |                    \_ / |
+    / \ |                     / \ |
+   |    ^   <------- 1       |    ^  <-------  1
+   |    |                    |    |
+   L'   R'                   R'   L'(R)
+   \_ / |                    \_ / |
+    / \ |                     / \ |
+   |    ^   <------- 2       |    ^  <-------- 2
+   |    |                    |    |
+   L''  R''                  R    L
 ```
-\* L[n] = R[n-2] i.e. A'' == B'
+\* `L[n] = R[n-1]` i.e. `L'' == R'`
+
 The only difference between encryption & decryption is the order of the subkeys.
-This (poor) feistel_decrypt implementatino swaps before & after it runs because
+This (poor) feistel_decrypt implementation swaps before & after it runs because
 it must ensure the same right sides are encrypted with the same subkeys
 
+Easy way to fix & simplify this is to swap after encryption, not at the
+beginning of decryption. This way both fns will swap at the end. And returned
+ciphertext is a bit more cryptic. One thing to keep in mind is making sure
+decryption still splits at the proper place for odd length messages. Encrypting
+for an even amount of rounds will result in flipped sides, so decryption must
+shift the index it splits at for odd length text, even amount of rounds (i.e.
+encrypt("ricky" 4 rounds) -> "ckyri" decrypt("ckyri" 4 rounds) must recognize
+"ckyri" ≈ ["cky", "ri"] not ["ck", "yri"]
+
+This implementation kinda conflicts with wiki: ["Commonly the two pieces R_n and
+L_n are not switched after the last round."](http://simple.wikipedia.org/wiki/Feistel_cipher).
+Not sure why that's the case though
 
 ###planned features
 
