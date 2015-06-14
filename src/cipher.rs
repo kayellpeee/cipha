@@ -55,7 +55,7 @@ fn round_fn(right: Vec<u32>, subkey: u32) -> Vec<u32> {
     let mut new_val: u32;
     for byte in right {
         new_val = byte.wrapping_mul(subkey.count_ones() + 1);
-        new_val = subkey % new_val;
+        new_val = subkey % (new_val + 1);
         new_val += (byte as f32).cbrt() as u32;
         if new_val > byte.count_ones() {
             new_val -= byte.count_ones();
