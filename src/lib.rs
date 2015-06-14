@@ -63,4 +63,48 @@ fn max_key_rounds() {
 /// output and see if similar inputs map to similar outputs (not random) as long
 /// as all inupts don't map to similar outputs (consistent).
 #[test]
+fn delta() {
+    let plain_alphabet = "abcdefghijklmnopqrstuvwxyz";
+    let cipher_alphabet = feistel_encrypt(plain_alphabet, 42, 5);
+    let mut delta: u32;
+    let mut average_delta: u32 = 0;
+    let mut max_delta: u32 = 0;
+    for tuple in plain_alphabet.bytes().enumerate() {
+        if cipher_alphabet[tuple.0] > tuple.1 as u32 {
+            delta = cipher_alphabet[tuple.0] - tuple.1 as u32;
+        } else {
+            delta =  tuple.1 as u32 - cipher_alphabet[tuple.0];
+        }
+        average_delta += (delta / cipher_alphabet.len() as u32);
+        if delta > max_delta {
+           max_delta = delta;
+        }
+        println!("tuple {:?} delta {:?}", tuple, delta);
+    }
+    println!("average delta\t {:?}", average_delta);
+    println!("max delta\t\t {:?}", max_delta);
+
+    // These aren't really tests, just printing results to get a sense of what's
+    // going on. Well set up defined tests later, which will probably be similar
+    // to benchmark tests——used for insight not testing code functionality
+    let plain_message = "Perhaps it was because I was a younger man and more
+    impressionable.";
+    let cipher_message = feistel_encrypt(plain_message, 1381964, 32);
+    average_delta = 0;
+    max_delta = 0;
+    for tuple in plain_message.bytes().enumerate() {
+        if cipher_message[tuple.0] > tuple.1 as u32 {
+            delta = cipher_message[tuple.0] - tuple.1 as u32;
+        } else {
+            delta =  tuple.1 as u32 - cipher_message[tuple.0];
+        }
+       average_delta += (delta / cipher_message.len() as u32);;
+       if delta > max_delta {
+           max_delta = delta;
+       }
+       println!("tuple {:?} delta {:?}", tuple, delta);
+    }
+    println!("average delta\t {:?}", average_delta);
+    println!("max delta\t\t {:?}", max_delta);
+    assert!(false);
 }
