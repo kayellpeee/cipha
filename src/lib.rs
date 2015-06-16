@@ -79,10 +79,28 @@ fn delta() {
         if delta > max_delta {
            max_delta = delta;
         }
-        println!("tuple {:?} delta {:?}", tuple, delta);
     }
-    println!("average delta\t {:?}", average_delta);
-    println!("max delta\t\t {:?}", max_delta);
+    let plain_alphabet_2 = "abcdefghijklmnopqrstuvwxyz";
+    let cipher_alphabet_2 = feistel_encrypt(plain_alphabet, 20150406, 87);
+    let mut delta_2: u32;
+    let mut average_delta_2: u32 = 0;
+    let mut max_delta_2: u32 = 0;
+    for tuple in plain_alphabet_2.bytes().enumerate() {
+        if cipher_alphabet_2[tuple.0] > tuple.1 as u32 {
+            delta_2 = cipher_alphabet_2[tuple.0] - tuple.1 as u32;
+        } else {
+            delta_2 =  tuple.1 as u32 - cipher_alphabet_2[tuple.0];
+        }
+        average_delta_2 += (delta_2 / cipher_alphabet_2.len() as u32);
+        if delta_2 > max_delta_2 {
+           max_delta_2 = delta_2;
+        }
+    }
+    println!("key 42 5 rounds max {:?} avg {:?}", max_delta, average_delta);
+    println!("key 20150406 87 rounds rounds max {:?} avg {:?}",
+             max_delta_2, average_delta_2);
+    assert!(max_delta != max_delta_2);
+    assert!(average_delta != average_delta_2);
 
     // These aren't really tests, just printing results to get a sense of what's
     // going on. Well set up defined tests later, which will probably be similar
@@ -102,9 +120,11 @@ fn delta() {
        if delta > max_delta {
            max_delta = delta;
        }
-       println!("tuple {:?} delta {:?}", tuple, delta);
     }
     println!("average delta\t {:?}", average_delta);
     println!("max delta\t\t {:?}", max_delta);
+    // Main test wouldn't be in the max, min or average difference between plain
+    // vs cipher text, but in the variance b/w the two. Want either no variance
+    // or unpredictable....will be hard to test for unpredictable variance
     assert!(false);
 }
