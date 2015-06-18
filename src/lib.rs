@@ -176,4 +176,23 @@ mod feistel_tests {
         });
     }
 
+    #[bench]
+    fn paragraph_encryption(b: &mut Bencher) {
+        let plaintext = "Before my departure I issued a joint statement with \
+            Prime Minister Djuanda on trade and cultural matters. We had had \
+            several talks since he received me at Jakarta aiport. He was an \
+            excellent man—able, highly educated, realistic, and resigned to \
+            the difficulties to his country. We had spoken for hours, \
+            sometimes in Bahasa Indonesia. During one exchange over dinner, I \
+            remarked that Indonesia was blessed with very fertile soild, a \
+            favorable climate, and abundant resources. He looked at me sadly \
+            and said, \"God is for us, but we are against ourselves.\" I felt \
+            I could do business with a man of such honesty and sincerity. I \
+            left feeling that we had become friends. I could speak Malay and \
+            was to him more like an Indonesian peranakan (a local-born \
+            Chinese), not a totok, a Chinese-speaking Chinese recent immigrant \
+            who was less assimilated.";
+        b.iter(|| feistel_encrypt(plaintext, 748291328, 186));
+    }
+
 }
