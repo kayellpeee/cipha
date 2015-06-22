@@ -1,4 +1,4 @@
 [package]
-name = "cipha"
+name = "cipher"
 version = "0.1.0"
 authors = ["Keenan Lidral-Porter <klp2012@gmail.com>"]
