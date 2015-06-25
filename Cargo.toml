@@ -2,3 +2,8 @@
 name = "cipher"
 version = "0.1.0"
 authors = ["Keenan Lidral-Porter <klp2012@gmail.com>"]
+
+description = "feistel cipher implementation in rust. Converts str -> Vec<u32>"
+keywords = ["cipher", "feistel", "encryption", "decryption", "cryptogrophy"]
+repository = "https://github.com/kayellpeee/cipha"
+license = "MIT"
