@@ -1,6 +1,6 @@
 [package]
 name = "cipher"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Keenan Lidral-Porter <klp2012@gmail.com>"]
 
 description = "feistel cipher implementation in rust. Converts str -> Vec<u32>"
